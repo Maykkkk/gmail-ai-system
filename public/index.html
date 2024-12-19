@@ -1,16 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Email AI</title>
-    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Calendar Events</title>
 </head>
 <body>
-    <div class="container">
-        <h1>Email AI System</h1>
-        <textarea id="emailContent" placeholder="Paste email content here"></textarea>
-        <button onclick="fetchEmails()">Fetch Emails</button>
-        <button onclick="analyzeEmail()">Analyze Email</button>
+    <h1>Google Calendar Events</h1>
+    <div id="calendar-events">
+        Loading events...
     </div>
-    <script src="script.js"></script>
+
+    <script>
+        // Fetch calendar events from the backend
+        fetch('/calendar')
+            .then(response => response.json())
+            .then(data => {
+                const eventsDiv = document.getElementById('calendar-events');
+                eventsDiv.innerHTML = ''; // Clear the loading text
+
+                // Check if events are available
+                if (data.length === 0) {
+                    eventsDiv.innerHTML = '<p>No events found.</p>';
+                    return;
+                }
+
+                // Display each event
+                data.forEach(event => {
+                    const eventElement = document.createElement('div');
+                    eventElement.innerHTML = `
+                        <h3>${event.summary || 'No Title'}</h3>
+                        <p><strong>Start:</strong> ${event.start?.dateTime || event.start?.date || 'N/A'}</p>
+                        <p><strong>End:</strong> ${event.end?.dateTime || event.end?.date || 'N/A'}</p>
+                    `;
+                    eventsDiv.appendChild(eventElement);
+                });
+            })
+            .catch(error => {
+                document.getElementById('calendar-events').innerHTML = '<p>Error fetching events.</p>';
+                console.error('Error:', error);
+            });
+    </script>
 </body>
 </html>
